@@ -177,7 +177,7 @@ function spawnObstacle()
         
     {   obstacle= createSprite(800,160,70,70);
         //obstacle.setCollider("rectangle",0,0,obstacle.width,obstacle.height)
-        obstacle.debug=true;
+        //obstacle.debug=true;
         var rand= Math.round(random(1,6))
         console.log(rand);
         obstacle.velocityX=testObs
