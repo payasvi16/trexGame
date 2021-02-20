@@ -2,6 +2,8 @@ var trex, trexImg, trex_collided;
 var ground,groundImg, invisible_ground;
 var cloudImg;
 
+var bird,birdImg
+
 var obstacle1,obstacle2,obstacle3,obstacle4,obstacle5,obstacle6;
 
 var cloudGroup,obstacleGroup;
@@ -17,6 +19,7 @@ var gameState= PLAY;
 var score=0;
 var testCloud=-4;
 var testObs=-4;
+var testbird;
 
 var obstacle,cloud;
 
@@ -35,6 +38,8 @@ function preload()
     obstacle4=loadImage("obstacle4.png")
     obstacle5=loadImage("obstacle5.png")
     obstacle6=loadImage("obstacle6.png")
+
+    birdImg=loadImage("bird.png")
 
     restartImg= loadImage("restart.png")
     gameoverImg=loadImage("gameOver.png")
@@ -72,6 +77,7 @@ function setup()
 
     cloudGroup= createGroup();
     obstacleGroup= createGroup();
+    birdGroup=createGroup();
 
 }
 
@@ -83,7 +89,25 @@ async function draw()
     if(gameState===PLAY)
     {
     spawnClouds();
+    if(score<1300)
+    {
     spawnObstacle();
+    }
+    if (score> 1300)
+    {
+        var rand= Math.round(random(1,4))
+        if(rand===1 || rand===3)
+        {
+            spawnBird();
+        }
+            
+        else if( rand===2 || rand ===4)
+        {
+            spawnObstacle();
+        }
+            
+        
+    }
        
     if(keyDown("space")&& trex.isTouching(ground))
     {
@@ -91,18 +115,18 @@ async function draw()
          jumpSound.play();
     }
     
-    trex.velocityY+=0.7;
+    trex.velocityY+=0.6;
 
     if(ground.x<0)
     {
         ground.x=ground.width/2;
     }
     
-    if(trex.isTouching(obstacleGroup))
+    if(trex.isTouching(obstacleGroup)|| trex.isTouching(birdGroup))
     {
         trex.velocityY = 0;
         gameState= END;
-        dieSound.play();
+       dieSound.play();
         //trex.velocityY=-10;
         //jumpSound.play();
     }
@@ -112,6 +136,7 @@ async function draw()
         checkSound.play();
         speed();
     }
+    
 
     score += Math.round(getFrameRate()/60);
 
@@ -129,6 +154,8 @@ async function draw()
        cloudGroup.setVelocityXEach(0);
        obstacleGroup.setLifetimeEach(-1);
        cloudGroup.setLifetimeEach(-1);
+       birdGroup.setVelocityXEach(0);
+       birdGroup.setLifetimeEach(-1);
 
       gameover.visible=true;
       restart.visible=true;
@@ -172,9 +199,10 @@ function spawnClouds()
 
 
 function spawnObstacle()
-{
-    if(frameCount%100===0 &&  frameCount>0)
-        
+{ //var rnd= Math.round(random(60,100))
+    
+    if(frameCount%80===0 &&  frameCount>0)
+    
     {   obstacle= createSprite(800,160,70,70);
         //obstacle.setCollider("rectangle",0,0,obstacle.width,obstacle.height)
         //obstacle.debug=true;
@@ -218,7 +246,7 @@ function spawnObstacle()
         obstacleGroup.add(obstacle);
 
         console.log("obstacle " , obstacle.velocityX);
-    console.log("ground",ground.velocityX);
+        console.log("ground",ground.velocityX);
 
     }
 }
@@ -233,6 +261,31 @@ function reset()
         ground.velocityX= -4
         testObs=-4
         testCloud=-4
+    }
+
+    function spawnBird()
+    {
+        if(frameCount%100===0  && frameCount>0)
+    {
+        bird= createSprite(800,Math.round(random(70,160)),10,10);
+        bird.addImage("bird",birdImg);
+        bird.scale=0.1
+
+        bird.velocityX= testObs;
+
+       /* {   if(score%50===0){
+
+            cloud.velocityX=-(5+ score/100);
+            testspeed=cloud.velocityX;
+        }*/
+       
+        bird.lifetime=600;
+
+        birdGroup.add(bird);
+
+        bird.depth=trex.depth;
+        trex.depth=bird.depth+1;
+    }
     }
 
     function speed()
